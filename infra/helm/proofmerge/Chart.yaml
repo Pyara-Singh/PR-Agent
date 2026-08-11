@@ -1,0 +1,7 @@
+apiVersion: v2
+name: proofmerge
+description: ProofMerge API, workers, and reviewer dashboard
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+

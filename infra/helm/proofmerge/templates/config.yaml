@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-config
+data:
+  PROOFMERGE_ENVIRONMENT: {{ .Values.config.environment | quote }}
+  PROOFMERGE_DATABASE_URL: {{ required "config.databaseUrl is required" .Values.config.databaseUrl | quote }}
+  PROOFMERGE_QUEUE_BACKEND: "kafka"
+  PROOFMERGE_KAFKA_BOOTSTRAP_SERVERS: {{ required "config.kafkaBootstrapServers is required" .Values.config.kafkaBootstrapServers | quote }}
+  PROOFMERGE_QDRANT_URL: {{ required "config.qdrantUrl is required" .Values.config.qdrantUrl | quote }}
+  PROOFMERGE_S3_BUCKET: {{ required "config.s3Bucket is required" .Values.config.s3Bucket | quote }}
+  PROOFMERGE_S3_ENDPOINT_URL: {{ .Values.config.s3EndpointUrl | quote }}
+  PROOFMERGE_CORS_ORIGINS: {{ required "config.corsOrigins is required" .Values.config.corsOrigins | quote }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Release.Name }}-secrets
+type: Opaque
+stringData:
+  PROOFMERGE_GITHUB_WEBHOOK_SECRET: {{ required "secrets.githubWebhookSecret is required" .Values.secrets.githubWebhookSecret | quote }}
+  PROOFMERGE_GITHUB_TOKEN: {{ .Values.secrets.githubToken | quote }}
+  PROOFMERGE_S3_ACCESS_KEY: {{ .Values.secrets.s3AccessKey | quote }}
+  PROOFMERGE_S3_SECRET_KEY: {{ .Values.secrets.s3SecretKey | quote }}
