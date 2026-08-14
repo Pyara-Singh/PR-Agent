@@ -1,4 +1,4 @@
-import type { CodingJob, DemoScenario, Review, ReviewList } from "@/lib/types";
+import type { CodingJob, DemoScenario, PolicyStatus, Review, ReviewList } from "@/lib/types";
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
 
@@ -36,4 +36,5 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ approved_paths: approvedPaths, commit_message: commitMessage, push }),
     }),
+  getPolicies: () => request<PolicyStatus>("/system/policies"),
 };

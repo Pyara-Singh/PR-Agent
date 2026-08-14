@@ -10,7 +10,7 @@ from PR_Agent.config import get_settings
 from PR_Agent.database import create_schema, dispose_engine
 from PR_Agent.llm import build_llm_provider
 from PR_Agent.orchestrator import ReviewOrchestrator
-from PR_Agent.routes import coding, health, reviews, webhooks
+from PR_Agent.routes import coding, health, reviews, system, webhooks
 
 
 @asynccontextmanager
@@ -52,6 +52,7 @@ def create_app() -> FastAPI:
     app.include_router(reviews.router, prefix=settings.api_prefix)
     app.include_router(webhooks.router, prefix=settings.api_prefix)
     app.include_router(coding.router, prefix=settings.api_prefix)
+    app.include_router(system.router, prefix=settings.api_prefix)
     return app
 
 

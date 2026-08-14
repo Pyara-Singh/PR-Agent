@@ -10,6 +10,15 @@ def test_health() -> None:
     assert response.json()["status"] == "ok"
 
 
+def test_policy_status_does_not_expose_credentials() -> None:
+    with TestClient(app) as client:
+        response = client.get("/api/v1/system/policies")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["review"]["human_approval_required"] is True
+    assert "github_token" not in str(data).lower()
+
+
 def test_secure_demo_produces_evidence_and_accepts_human_decision() -> None:
     with TestClient(app) as client:
         created = client.post("/api/v1/reviews/demo", json={"scenario": "secure-fix"})

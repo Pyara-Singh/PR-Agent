@@ -81,3 +81,10 @@ export type CodingJob = {
   created_at: string;
   updated_at: string;
 };
+
+export type PolicyStatus = {
+  environment: string;
+  review: { human_approval_required: boolean; github_evidence_comments_enabled: boolean; webhook_signature_required: boolean };
+  execution: { backend: string; network_access: string; local_execution_enabled: boolean; timeout_seconds: number };
+  coding_agent: { enabled: boolean; remote_push_enabled: boolean; maximum_proposed_files: number; requires_clean_repository: boolean };
+};

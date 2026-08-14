@@ -15,6 +15,7 @@ export default function CodingPage() {
   const [job, setJob] = useState<CodingJob | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const formReady = repositoryPath.trim().length > 0 && prompt.trim().length >= 5;
 
   useEffect(() => {
     if (!job || !["queued", "planning", "drafting"].includes(job.status)) return;
@@ -30,6 +31,10 @@ export default function CodingPage() {
 
   async function start(event: FormEvent) {
     event.preventDefault();
+    if (!formReady) {
+      setError("Enter an absolute local Git repository path and a request of at least 5 characters.");
+      return;
+    }
     setBusy(true);
     try {
       const next = await api.createCodingJob(prompt, repositoryPath);
@@ -69,10 +74,13 @@ export default function CodingPage() {
     <main className="coding-page">
       <header className="coding-header"><div><p className="eyebrow">Guarded Coding Agent</p><h1>Draft. Review. Commit.</h1></div><Link href="/" className="secondary-button">Back to reviews</Link></header>
       <section className="coding-notice"><ShieldCheck /><p>Nothing is written while drafting. Only files you select are committed locally after approval. Remote push is disabled by default.</p></section>
-      <form className="coding-form" onSubmit={(event) => void start(event)}>
-        <label>Local Git repository path<input value={repositoryPath} onChange={(event) => setRepositoryPath(event.target.value)} placeholder="C:\\Users\\you\\Documents\\project" required /></label>
-        <label>What should change?<textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="Add input validation to the login form" required minLength={5} /></label>
-        <button className="approve-button" disabled={busy} type="submit">{busy ? <LoaderCircle className="spin" /> : <Code2 />} Draft changes</button>
+      <form className="coding-form" noValidate onSubmit={(event) => void start(event)}>
+        <label>Local Git repository path <span className="required-mark">Required</span><input value={repositoryPath} onChange={(event) => setRepositoryPath(event.target.value)} placeholder="C:\\Users\\you\\Documents\\project" aria-describedby="repository-help" /></label>
+        <p className="field-help" id="repository-help">Use an absolute path to a clean Git repository inside your configured allowed folder.</p>
+        <label>What should change? <span className="required-mark">Required</span><textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="Example: Add input validation to the login form" aria-describedby="request-help" /></label>
+        <p className="field-help" id="request-help">Describe the result you want. PR_Agent drafts files first; it does not write anything until you approve.</p>
+        <button className="approve-button draft-button" disabled={busy || !formReady} type="submit">{busy ? <LoaderCircle className="spin" /> : <Code2 />} Draft changes</button>
+        <p className={`draft-helper ${formReady ? "ready" : ""}`}>{formReady ? "Ready to create read-only drafts." : "Complete both required fields to unlock drafting."}</p>
       </form>
       {error && <p className="coding-error"><X /> {error}</p>}
       {job && <section className="coding-job"><div className="coding-job-head"><div><p className="eyebrow">Job {job.id.slice(0, 8)}</p><h2>{job.status.replaceAll("_", " ")}</h2></div>{job.status === "planning" || job.status === "drafting" ? <LoaderCircle className="spin" /> : null}</div>

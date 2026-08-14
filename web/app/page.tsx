@@ -106,6 +106,7 @@ function EmptyState({ onRun }: { onRun: (scenario: DemoScenario) => void }) {
 export default function Dashboard() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [requestedReviewId, setRequestedReviewId] = useState<string | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -136,6 +137,14 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => { void loadReviews(); }, [loadReviews]);
+  useEffect(() => {
+    setRequestedReviewId(new URLSearchParams(window.location.search).get("review"));
+  }, []);
+  useEffect(() => {
+    if (requestedReviewId && reviews.some((review) => review.id === requestedReviewId)) {
+      setSelectedId(requestedReviewId);
+    }
+  }, [requestedReviewId, reviews]);
 
   useEffect(() => {
     if (!selected || !["queued", "running"].includes(selected.status)) return;
@@ -197,10 +206,10 @@ export default function Dashboard() {
         </div>
 
         <nav className="primary-nav" aria-label="Primary navigation">
-          <button className="nav-item active" type="button"><Activity aria-hidden /><span>Review queue</span><b>{reviews.length}</b></button>
-          <button className="nav-item" type="button"><GitPullRequest aria-hidden /><span>Repositories</span></button>
+          <Link className="nav-item active" href="/"><Activity aria-hidden /><span>Review queue</span><b>{reviews.length}</b></Link>
+          <Link className="nav-item" href="/repositories"><GitPullRequest aria-hidden /><span>Repositories</span></Link>
           <Link className="nav-item" href="/coding"><FlaskConical aria-hidden /><span>Coding agent</span></Link>
-          <button className="nav-item" type="button"><ShieldCheck aria-hidden /><span>Policies</span></button>
+          <Link className="nav-item" href="/policies"><ShieldCheck aria-hidden /><span>Policies</span></Link>
         </nav>
 
         <div className="sidebar-section">
