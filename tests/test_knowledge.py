@@ -1,6 +1,6 @@
 import pytest
 
-from proofmerge.knowledge import EMBEDDING_DIMENSIONS, NullKnowledgeStore, deterministic_embedding
+from PR_Agent.knowledge import EMBEDDING_DIMENSIONS, NullKnowledgeStore, deterministic_embedding
 
 
 def test_deterministic_embedding_is_stable_and_normalized() -> None:

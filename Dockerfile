@@ -4,13 +4,13 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
 WORKDIR /app
-RUN addgroup --system proofmerge && adduser --system --ingroup proofmerge proofmerge
+RUN addgroup --system pr-agent && adduser --system --ingroup pr-agent pr-agent
 COPY pyproject.toml README.md ./
-COPY proofmerge ./proofmerge
+COPY PR_Agent ./PR_Agent
 RUN pip install --no-cache-dir .
-RUN mkdir -p /app/.proofmerge-artifacts /app/.proofmerge-workspaces && chown -R proofmerge:proofmerge /app
+RUN mkdir -p /app/.pr-agent-artifacts /app/.pr-agent-workspaces && chown -R pr-agent:pr-agent /app
 
-USER proofmerge
+USER pr-agent
 EXPOSE 8000
-CMD ["uvicorn", "proofmerge.api:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "PR_Agent.api:app", "--host", "0.0.0.0", "--port", "8000"]
 

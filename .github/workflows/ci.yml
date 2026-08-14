@@ -15,7 +15,7 @@ jobs:
           python-version: "3.12"
           cache: pip
       - run: pip install -e ".[dev]"
-      - run: ruff check proofmerge tests
+      - run: ruff check pr-agent tests
       - run: pytest
 
   frontend:

@@ -1,0 +1,7 @@
+apiVersion: v2
+name: pr-agent
+description: PR_Agent API, workers, and reviewer dashboard
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+

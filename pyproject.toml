@@ -3,7 +3,7 @@ requires = ["hatchling>=1.27"]
 build-backend = "hatchling.build"
 
 [project]
-name = "proofmerge"
+name = "pr-agent"
 version = "0.1.0"
 description = "Zero-trust, evidence-driven pull request reviewer"
 readme = "README.md"
@@ -35,10 +35,10 @@ dev = [
 ]
 
 [project.scripts]
-proofmerge = "proofmerge.cli:main"
+pr-agent = "PR_Agent.cli:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["proofmerge"]
+packages = ["PR_Agent"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
@@ -53,5 +53,5 @@ select = ["E", "F", "I", "UP", "B", "ASYNC"]
 ignore = ["E501"]
 
 [tool.ruff.lint.per-file-ignores]
-"proofmerge/routes/*.py" = ["B008"]
-"proofmerge/sandbox.py" = ["ASYNC240"]
+"PR_Agent/routes/*.py" = ["B008"]
+"PR_Agent/sandbox.py" = ["ASYNC240"]

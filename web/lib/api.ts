@@ -1,4 +1,4 @@
-import type { DemoScenario, Review, ReviewList } from "@/lib/types";
+import type { CodingJob, DemoScenario, Review, ReviewList } from "@/lib/types";
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
 
@@ -25,5 +25,15 @@ export const api = {
       body: JSON.stringify({ decision, reviewer: "dashboard-reviewer", note }),
     }),
   rerun: (reviewId: string) => request<Review>(`/reviews/${reviewId}/rerun`, { method: "POST" }),
+  createCodingJob: (prompt: string, repositoryPath: string) =>
+    request<CodingJob>("/coding/jobs", {
+      method: "POST",
+      body: JSON.stringify({ prompt, repository_path: repositoryPath }),
+    }),
+  getCodingJob: (jobId: string) => request<CodingJob>(`/coding/jobs/${jobId}`),
+  decideCodingJob: (jobId: string, approvedPaths: string[], commitMessage: string, push = false) =>
+    request<CodingJob>(`/coding/jobs/${jobId}/decision`, {
+      method: "POST",
+      body: JSON.stringify({ approved_paths: approvedPaths, commit_message: commitMessage, push }),
+    }),
 };
-

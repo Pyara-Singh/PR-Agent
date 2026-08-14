@@ -173,6 +173,28 @@ svg { width: 1.05rem; height: 1.05rem; stroke-width: 1.8; }
 .raw-evidence pre { max-height: 230px; overflow: auto; padding: 11px; border-radius: 8px; color: #d9ded5; background: #1b1e1b; font-size: 8px; line-height: 1.55; }
 
 .approval-bar { margin-top: 20px; padding: 18px 20px; border: 1px solid #afb4a7; border-radius: 15px; display: flex; align-items: center; justify-content: space-between; gap: 20px; background: #e9e6dc; }
+
+.coding-page { max-width: 1000px; margin: 0 auto; padding: 52px 28px 80px; color: var(--ink); }
+.coding-header { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin-bottom: 22px; }
+.coding-header h1 { margin: 4px 0 0; font-size: clamp(30px, 5vw, 54px); letter-spacing: -.06em; }
+.coding-notice, .coding-form, .coding-job { border: 1px solid var(--line); border-radius: 14px; background: #fffdf7; }
+.coding-notice { padding: 16px; display: flex; gap: 12px; align-items: flex-start; background: #efffcd; }
+.coding-notice svg, .coding-success svg { color: #5f7c1d; flex: none; }
+.coding-notice p { margin: 0; font-size: 13px; line-height: 1.5; }
+.coding-form, .coding-job { margin-top: 18px; padding: 22px; }
+.coding-form label, .coding-decision label { display: grid; gap: 7px; margin-bottom: 15px; font-size: 12px; font-weight: 750; }
+.coding-form input, .coding-form textarea, .coding-decision input { width: 100%; border: 1px solid #c8c8bf; border-radius: 8px; padding: 11px; color: var(--ink); background: white; font: inherit; box-sizing: border-box; }
+.coding-form textarea { min-height: 112px; resize: vertical; }
+.coding-error { display: flex; gap: 8px; color: #a32d22; }
+.coding-job-head { display: flex; justify-content: space-between; align-items: center; text-transform: capitalize; }
+.coding-job-head h2 { margin: 3px 0 0; }
+.coding-events { padding-left: 20px; color: #62665f; font-size: 12px; line-height: 1.8; }
+.coding-proposal { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 15px; }
+.proposal-select { display: flex; gap: 8px; align-items: center; font-size: 13px; }
+.coding-proposal pre { max-height: 340px; overflow: auto; padding: 14px; border-radius: 9px; color: #d9ded5; background: #171917; font-size: 11px; line-height: 1.55; white-space: pre-wrap; }
+.coding-decision { display: flex; align-items: end; gap: 10px; border-top: 1px solid var(--line); padding-top: 18px; margin-top: 18px; }
+.coding-decision label { flex: 1; margin: 0; }
+.coding-success { display: flex; gap: 8px; align-items: center; color: #496616; }
 .approval-bar > div { display: flex; align-items: center; gap: 11px; }
 .approval-icon { width: 39px; height: 39px; border-radius: 11px; display: grid; place-items: center; color: var(--ink); background: var(--acid); }
 .approval-actions button, .secondary-button { height: 38px; padding: 0 14px; border-radius: 9px; display: flex; align-items: center; gap: 7px; font-size: 10px; font-weight: 800; cursor: pointer; }
@@ -209,4 +231,3 @@ svg { width: 1.05rem; height: 1.05rem; stroke-width: 1.8; }
   .task-card > svg { display: none; }
   .empty-state { padding: 24px; }
 }
-

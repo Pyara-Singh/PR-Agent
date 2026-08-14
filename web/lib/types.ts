@@ -65,3 +65,19 @@ export type Review = {
 export type ReviewList = { items: Review[]; total: number };
 export type DemoScenario = "secure-fix" | "risky-change" | "incomplete-fix";
 
+export type CodingProposal = { path: string; diff: string };
+
+export type CodingJob = {
+  id: string;
+  prompt: string;
+  repository_path: string;
+  status: "queued" | "planning" | "drafting" | "awaiting_approval" | "rejected" | "committed" | "pushed" | "failed";
+  plan: { path: string; instruction: string }[];
+  proposals: CodingProposal[];
+  events: string[];
+  error: string;
+  branch: string;
+  commit: string;
+  created_at: string;
+  updated_at: string;
+};

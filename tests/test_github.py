@@ -3,7 +3,7 @@ import hmac
 
 import pytest
 
-from proofmerge.github import InvalidWebhookSignature, verify_github_signature
+from PR_Agent.github import InvalidWebhookSignature, verify_github_signature
 
 
 def test_webhook_signature_verification() -> None:

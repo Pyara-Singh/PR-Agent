@@ -22,6 +22,7 @@ import {
   XCircle,
   Zap,
 } from "lucide-react";
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { API_URL, api } from "@/lib/api";
@@ -191,14 +192,14 @@ export default function Dashboard() {
       <aside className={`sidebar ${mobileNav ? "mobile-open" : ""}`}>
         <div className="brand-row">
           <div className="brand-mark"><ShieldCheck aria-hidden /></div>
-          <div><strong>ProofMerge</strong><span>Evidence console</span></div>
+          <div><strong>PR_Agent</strong><span>Evidence console</span></div>
           <button className="mobile-close" onClick={() => setMobileNav(false)} aria-label="Close navigation"><X /></button>
         </div>
 
         <nav className="primary-nav" aria-label="Primary navigation">
           <button className="nav-item active" type="button"><Activity aria-hidden /><span>Review queue</span><b>{reviews.length}</b></button>
           <button className="nav-item" type="button"><GitPullRequest aria-hidden /><span>Repositories</span></button>
-          <button className="nav-item" type="button"><FlaskConical aria-hidden /><span>Test lab</span></button>
+          <Link className="nav-item" href="/coding"><FlaskConical aria-hidden /><span>Coding agent</span></Link>
           <button className="nav-item" type="button"><ShieldCheck aria-hidden /><span>Policies</span></button>
         </nav>
 
@@ -350,4 +351,3 @@ export default function Dashboard() {
     </div>
   );
 }
-

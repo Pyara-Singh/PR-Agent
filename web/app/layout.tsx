@@ -7,7 +7,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host") ?? "localhost:3000";
   const protocol = requestHeaders.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
   const origin = `${protocol}://${host}`;
-  const title = "ProofMerge — Evidence before merge";
+  const title = "PR_Agent — Evidence before merge";
   const description = "A zero-trust pull request reviewer that proves changes before humans approve them.";
   return {
     metadataBase: new URL(origin),
@@ -17,7 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title,
       description,
       type: "website",
-      images: [{ url: `${origin}/og.png`, width: 1730, height: 909, alt: "ProofMerge evidence chain" }],
+      images: [{ url: `${origin}/og.png`, width: 1730, height: 909, alt: "PR_Agent evidence chain" }],
     },
     twitter: {
       card: "summary_large_image",

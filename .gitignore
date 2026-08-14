@@ -19,8 +19,10 @@ dist/
 build/
 *.egg-info/
 explainer.md
-.proofmerge-artifacts/
-.proofmerge-workspaces/
+.pr-agent-artifacts/
+.pr-agent-workspaces/
+.PR_Agent-artifacts/
+.PR_Agent-workspaces/
 
 web/.env.local
 web/.env.*.local

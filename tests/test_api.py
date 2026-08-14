@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-from proofmerge.api import app
+from PR_Agent.api import app
 
 
 def test_health() -> None:

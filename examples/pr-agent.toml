@@ -1,0 +1,21 @@
+# Copy the relevant block into .pr-agent.toml on your repository's base branch.
+# Commands are run inside the listed container with no network access.
+
+# Python project (use an image containing dependencies, or a repository vendored dependency cache)
+# [test]
+# commands = ["python -m pytest -q"]
+# [sandbox]
+# image = "python:3.12-slim"
+
+# Node project (use an image containing node_modules or a self-contained test command)
+# [test]
+# commands = ["npm test"]
+# [sandbox]
+# image = "node:22-alpine"
+
+# Single-file C++ project
+[test]
+commands = ["g++ -std=c++17 -Wall -Wextra hello.cpp -o /run/pr-agent-program", "/run/pr-agent-program"]
+
+[sandbox]
+image = "gcc:14"

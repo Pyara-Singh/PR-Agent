@@ -1,0 +1,28 @@
+replicaCount:
+  api: 2
+  worker: 4
+  web: 2
+
+image:
+  backend: ghcr.io/example/pr-agent-api:latest
+  web: ghcr.io/example/pr-agent-web:latest
+  pullPolicy: IfNotPresent
+
+service:
+  apiPort: 8000
+  webPort: 3000
+
+config:
+  environment: production
+  databaseUrl: ""
+  kafkaBootstrapServers: ""
+  qdrantUrl: ""
+  s3Bucket: ""
+  s3EndpointUrl: ""
+  corsOrigins: ""
+
+secrets:
+  githubWebhookSecret: ""
+  githubToken: ""
+  s3AccessKey: ""
+  s3SecretKey: ""

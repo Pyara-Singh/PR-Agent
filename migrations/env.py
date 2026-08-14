@@ -5,9 +5,9 @@ from alembic import context
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from sqlalchemy.pool import NullPool
 
-from proofmerge import models  # noqa: F401
-from proofmerge.config import get_settings
-from proofmerge.database import Base
+from PR_Agent import models  # noqa: F401
+from PR_Agent.config import get_settings
+from PR_Agent.database import Base
 
 config = context.config
 if config.config_file_name is not None:
