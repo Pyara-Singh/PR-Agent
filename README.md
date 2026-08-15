@@ -79,7 +79,7 @@ FastAPI API + Server-Sent Events
 ### 1. Start the backend
 
 ```powershell
-cd C:\path\to\proofmerge-basic
+cd C:\path\to\PR-Agent
 Copy-Item .env.example .env
 py -m venv .venv
 .\.venv\Scripts\Activate.ps1
@@ -92,7 +92,7 @@ The API is available at `http://127.0.0.1:8000`.
 ### 2. Start the dashboard
 
 ```powershell
-cd C:\path\to\proofmerge-basic\web
+cd C:\path\to\PR-Agent\web
 Copy-Item .env.example .env.local
 npm install
 npm run dev
