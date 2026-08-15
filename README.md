@@ -1,227 +1,221 @@
 # PR_Agent
 
-PR_Agent is a zero-trust, evidence-driven pull request reviewer. It treats every pull
-request as an unproven claim, gathers independent evidence, and requires a human decision
-before approval.
+PR_Agent is a zero-trust pull-request reviewer and guarded local Coding Agent.
 
-The original learning prototype remains at the repository root. The production application
-lives in `PR_Agent/`, the reviewer dashboard in `web/`, and deployment assets in `infra/`.
+It helps a developer move from a requested change to reviewed evidence:
 
-## What is implemented
-
-- Signed GitHub pull-request webhook ingestion
-- LangGraph review lifecycle with explicit, inspectable state
-- Strategic-alignment, reproduction, security, adversarial, and behavioral agents
-- Base-versus-head evidence records and test-weakening detection
-- Deterministic local analysis with an optional Ollama provider
-- PostgreSQL/SQLite persistence and Alembic migration support
-- Kafka-compatible Redpanda queue with separately scalable workers
-- Local/S3-compatible immutable evidence reports
-- Restricted Docker sandbox adapter with no network, capabilities, or writable source mount
-- Live Next.js review dashboard using Server-Sent Events
-- Human approval/rejection gate and repeatable demo scenarios
-- Docker Compose, Kubernetes Helm, Terraform, and GitHub Actions assets
-
-## Quick start without Docker
-
-Python 3.12+ and Node.js 22+ are required.
-
-```powershell
-Copy-Item .env.example .env
-python -m venv .venv-production
-.\.venv-production\Scripts\python.exe -m pip install -e ".[dev]"
-.\.venv-production\Scripts\python.exe -m PR_Agent.cli serve --reload
+```text
+Coding request -> proposed diffs -> human-approved local commit -> GitHub pull request
+GitHub webhook -> evidence collection -> human review decision
 ```
 
-In a second terminal:
+The system is intentionally human-in-the-loop. It can draft code, collect evidence, create
+an approved local commit, and optionally push a branch, but it does not silently modify or
+merge a repository.
+
+## Features
+
+### Pull-request review
+
+- Receives signed GitHub `pull_request` webhooks.
+- Runs five independent review agents:
+  - Strategic alignment
+  - Scientific reproduction
+  - Security and quality
+  - Adversarial hardening
+  - Behavioral compatibility
+- Stores review evidence, findings, scores, and a final advisory decision.
+- Compares configured test commands on the base and pull-request commits.
+- Detects common test weakening, such as deleted or skipped tests.
+- Requires an explicit human approval or rejection in the dashboard.
+- Can optionally post an advisory evidence summary back to GitHub.
+
+### Guarded Coding Agent
+
+- Accepts a plain-English request for an existing local Git repository.
+- Supports Gemini, OpenAI, Grok, Ollama, or deterministic analysis.
+- Produces file-by-file unified diffs before changing any source file.
+- Restricts edits to tracked, allow-listed source files inside configured folders.
+- Requires a clean working tree and explicit file selection before committing.
+- Creates a separate `pr-agent/coding-...` branch for every approved change.
+- Pushes only when explicitly enabled in configuration and selected in the UI.
+
+## Architecture
+
+```text
+Next.js dashboard
+       |
+       v
+FastAPI API + Server-Sent Events
+       |
+       +--> LangGraph review orchestration
+       |      +--> five evidence agents
+       |      +--> SQLite or PostgreSQL
+       |      +--> local or S3-compatible evidence storage
+       |
+       +--> Guarded Coding Agent
+              +--> Gemini / OpenAI / Grok / Ollama
+              +--> local Git branch and commit after approval
+```
+
+## Tech stack
+
+- Backend: Python 3.12, FastAPI, SQLAlchemy, Alembic, LangGraph
+- Frontend: Next.js, React, TypeScript
+- Review execution: restricted Docker sandbox (optional for local review-only use)
+- Storage: SQLite for local development; PostgreSQL and S3-compatible storage supported
+- Queue: in-memory locally; Kafka/Redpanda supported for workers
+- AI providers: Gemini, OpenAI, Grok, Ollama, or deterministic mode
+
+## Quick start
+
+### Prerequisites
+
+- Python 3.12+
+- Node.js 22+
+- Git
+- Docker Desktop only when running sandboxed repository tests
+
+### 1. Start the backend
 
 ```powershell
-Set-Location web
+cd C:\path\to\proofmerge-basic
+Copy-Item .env.example .env
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -e ".[dev]"
+python -m PR_Agent.cli serve --reload
+```
+
+The API is available at `http://127.0.0.1:8000`.
+
+### 2. Start the dashboard
+
+```powershell
+cd C:\path\to\proofmerge-basic\web
 Copy-Item .env.example .env.local
 npm install
 npm run dev
 ```
 
-Open `http://localhost:3000` and choose **Run demo**. The default configuration uses SQLite,
-an in-process review dispatcher, local artifact files, and deterministic analyzers. GitHub,
-Kafka, S3, Docker, and Ollama are optional in local development.
+Open `http://localhost:3000`.
 
-To index an ADR, roadmap, or project goal after setting `PR_AGENT_QDRANT_URL`:
+### 3. Run a demo
 
-```powershell
-python -m PR_Agent.cli index .\docs\architecture.md --kind adr
-```
+Use **Run demo** in the dashboard. Demo reviews do not require GitHub, Docker, or an API key.
 
-## LLM providers
+## Configure an AI provider
 
-Deterministic rules are the default. To add model-assisted observations, set exactly one
-provider in `.env` and provide its key locally. Never commit `.env` or API keys.
+The default `deterministic` provider performs rule-based review analysis but does not generate
+Coding Agent drafts. To use the Coding Agent, configure an LLM in your private `.env` file.
+
+### Gemini
 
 ```env
-# Choose one: deterministic, openai, gemini, grok, ollama
 PR_AGENT_LLM_PROVIDER=gemini
-PR_AGENT_GEMINI_API_KEY=replace-me
-PR_AGENT_GEMINI_MODEL=gemini-2.5-flash
+PR_AGENT_GEMINI_API_KEY=your_private_key
+PR_AGENT_GEMINI_MODEL=gemini-3.5-flash
+PR_AGENT_GEMINI_URL=https://generativelanguage.googleapis.com/v1beta/models
 ```
 
-The other cloud options are:
+Restart the backend after changing `.env`. Never commit `.env` or share API keys.
 
-```env
-PR_AGENT_LLM_PROVIDER=openai
-PR_AGENT_OPENAI_API_KEY=replace-me
-PR_AGENT_OPENAI_MODEL=gpt-4o-mini
+### Other providers
 
-PR_AGENT_LLM_PROVIDER=grok
-PR_AGENT_GROK_API_KEY=replace-me
-PR_AGENT_GROK_MODEL=grok-4.5
-```
+`.env.example` includes settings for Ollama, OpenAI, and Grok. Select the provider with
+`PR_AGENT_LLM_PROVIDER` and set the matching local API key or Ollama server configuration.
 
-The model is used only for structured observations by the alignment and security agents;
-the final verdict and Docker reproduction evidence remain controlled by PR_Agent's own
-rules. Restart the backend after changing `.env`.
+## Use the Coding Agent
 
-## Full local infrastructure
+1. Clone or choose a clean local Git repository.
+2. Enable the feature in `.env`:
 
-With Docker available, run:
+   ```env
+   PR_AGENT_CODING_AGENT_ENABLED=true
+   PR_AGENT_CODING_ALLOWED_ROOTS=C:\Users\your-name\Documents\projects
+   PR_AGENT_CODING_AUTO_PUSH=false
+   ```
 
-```bash
-docker compose up --build
-```
+3. Restart the backend and open **Coding agent** in the dashboard.
+4. Enter the repository's absolute local path and a request.
+5. Select **Draft changes** and inspect every proposed diff.
+6. Select only the files you approve and choose **Commit selected files locally**.
 
-This starts the dashboard, API, review worker, PostgreSQL, Redpanda, Qdrant, and MinIO. The
-dashboard is served at `http://localhost:3000`; API documentation is at
-`http://localhost:8000/docs`.
+The agent creates a local branch and commit only after your approval. To allow the optional
+**Commit and push** action, set `PR_AGENT_CODING_AUTO_PUSH=true`, restart the backend, and
+ensure the repository has an authenticated `origin` remote.
 
-## GitHub App setup
+## Review a real GitHub pull request
 
-1. Create a GitHub App with pull-request read access, issue-comment write access, and contents
-   read access. Grant contents write only if auto-correction is explicitly enabled.
-2. Subscribe to pull-request events.
-3. Set the webhook URL to `https://YOUR_API/api/v1/webhooks/github`.
-4. Put the webhook secret and installation credential in your secret manager, then expose them
-   as `PR_AGENT_GITHUB_WEBHOOK_SECRET` and `PR_AGENT_GITHUB_TOKEN`.
-5. Set `PR_AGENT_QUEUE_BACKEND=kafka` when using external workers.
+1. Run the backend locally.
+2. Create a public HTTPS tunnel to port `8000` during local development, for example with ngrok.
+3. In GitHub repository settings, add a webhook:
 
-Webhook signatures are verified before payload parsing. PR descriptions and diffs are treated
-as untrusted data and cannot directly control the review graph.
+   ```text
+   https://YOUR-PUBLIC-URL/api/v1/webhooks/github
+   ```
 
-## Review lifecycle
+4. Select `application/json` and the **Pull requests** event.
+5. Set `PR_AGENT_GITHUB_WEBHOOK_SECRET` to the exact same secret used in GitHub.
+6. Open or update a pull request, then inspect it in **Review queue**.
 
-```text
-GitHub webhook
-    │
-    ▼
-API gateway ──► durable review record ──► Redpanda
-                                              │
-                                              ▼
-                                      LangGraph orchestrator
-                         ┌────────────────────┼────────────────────┐
-                         ▼                    ▼                    ▼
-                  reproduction          security           alignment
-                         ▼                    ▼                    ▼
-                  adversarial        behavioral diff       policy context
-                         └────────────────────┼────────────────────┘
-                                              ▼
-                                      evidence report
-                                              ▼
-                                      mandatory human gate
-```
+For a permanent multi-user installation, deploy the API to a public host rather than using a
+local tunnel, and use a GitHub App instead of a personal token.
 
-The system decision is advisory. A `pass` still becomes `awaiting_approval`; it never silently
-merges a pull request.
+## Configure repository tests
 
-## Configuration modes
-
-| Capability | Safe local default | Production setting |
-|---|---|---|
-| Database | SQLite | PostgreSQL |
-| Queue | In-process background task | Redpanda/Kafka |
-| Artifacts | Local directory | S3-compatible object storage |
-| LLM | Deterministic analyzers | Ollama or a provider adapter |
-| Execution | Docker adapter | gVisor/Firecracker-backed runner |
-| Approval | Dashboard action | GitHub check/comment plus RBAC |
-
-All settings are documented in `.env.example`. Configuration uses the `PR_AGENT_` prefix.
-
-To publish the final advisory evidence report to the pull request, give the configured GitHub
-token permission to create issue comments and set `PR_AGENT_GITHUB_COMMENTS_ENABLED=true`.
-This is disabled by default; comments never approve, merge, or modify source code.
-
-## Guarded Coding Agent
-
-PR_Agent also includes an optional local Coding Agent at `http://localhost:3000/coding`.
-It is intentionally separate from PR review. It uses the configured LLM to plan and draft changes
-to existing tracked source files, then shows unified diffs over Server-Sent Events. Drafting never
-writes to disk.
-
-To enable it for repositories in one trusted folder, set these values in your local `.env` and
-restart the backend:
-
-```env
-PR_AGENT_CODING_AGENT_ENABLED=true
-PR_AGENT_CODING_ALLOWED_ROOTS=C:\Users\singh\Documents\pyara\projects
-PR_AGENT_CODING_AUTO_PUSH=false
-```
-
-After you select proposed files and press **Commit selected files locally**, PR_Agent creates a
-new `pr-agent/coding-...` branch and makes one local commit. It cannot push unless both the API
-request asks for it and `PR_AGENT_CODING_AUTO_PUSH=true`. Do not grant it a broad folder such as
-your user profile or drive root.
-
-## Repository test configuration
-
-For a real repository, commit this file to its **base branch**. PR_Agent reads that trusted
-version and executes the same commands against the base commit and the pull-request commit.
-It does not accept test commands from the untrusted PR branch.
+Commit `.pr-agent.toml` to the repository's base branch. PR_Agent uses that trusted version
+for both base and pull-request test runs.
 
 ```toml
-# .pr-agent.toml
 [test]
-commands = ["npm ci", "npm test"]
+commands = ["g++ -std=c++17 -Wall -Wextra hello.cpp -o /run/program", "/run/program"]
 
 [sandbox]
-# Use an image that already contains the required runtime.
-image = "node:22-alpine"
+image = "gcc:14"
 ```
 
-Use shell commands appropriate for the image. The configured container remains networkless,
-read-only, capability-free, and time-limited; dependencies therefore need to be included in
-the image or already available in the repository. See `examples/pr-agent.toml` for common
-Python, Node, and C++ starting points.
+See [`examples/pr-agent.toml`](examples/pr-agent.toml) for more starting points.
 
-## Security model
+## Safety model
 
-- Untrusted code does not receive GitHub, LLM, database, or storage credentials.
-- Docker sandbox runs are networkless, read-only, non-root, capability-free, resource-capped,
-  and time-limited.
-- Host execution is disabled by default and requires an explicit opt-in.
-- LLM output is parsed as bounded data and never selects graph nodes or shell commands.
-- Webhooks use HMAC SHA-256 verification and constant-time signature comparison.
-- Evidence reports are kept independently of model responses for auditability.
-- Production credentials belong in Vault or a managed secret store, not `.env` files.
+- GitHub webhook signatures are verified when a webhook secret is configured.
+- Untrusted PR test execution runs in a network-disabled, read-only Docker sandbox.
+- The Coding Agent validates repository roots, paths, file extensions, and working-tree state.
+- Drafts remain in memory until a human approves selected files.
+- Remote push is off by default.
+- LLM output is parsed as data and never directly controls shell commands or orchestration.
+- Secrets belong in local environment variables or a secret manager, never Git.
 
-The local Docker adapter is intended for development. Executing arbitrary public PRs in
-production requires a separate gVisor or Firecracker runner service and strict egress policy.
+## Verification
 
-## Validation
+Run backend checks:
 
 ```powershell
-python -m pytest
 python -m ruff check PR_Agent tests
-Set-Location web
+python -m pytest -q
+```
+
+Run the frontend production build:
+
+```powershell
+cd web
 npm run build
 ```
 
-The tests cover health, all three review outcomes, evidence generation, the human gate, and
-webhook signature tampering.
+## Project structure
 
-## Upgrading a running local database
-
-When you pull a newer version of PR_Agent, stop the backend once and run:
-
-```powershell
-python -m alembic upgrade head
+```text
+PR_Agent/              FastAPI application, agents, sandbox, Coding Agent
+web/                   Next.js dashboard
+tests/                 Backend test suite
+migrations/            Alembic database migrations
+examples/              Repository test configuration examples
+infra/                 Docker Compose, Helm, and Terraform deployment assets
 ```
 
-The current migration adds GitHub delivery idempotency, preventing a retried webhook from
-creating duplicate reviews.
+## Status
+
+PR_Agent is a working local-first project and learning prototype. Before using it for
+organization-wide production review, deploy it to a persistent host, use a GitHub App,
+configure managed secrets, and use a hardened isolated runner for untrusted code.

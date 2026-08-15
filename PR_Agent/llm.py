@@ -57,12 +57,22 @@ class GeminiProvider:
         payload = {
             "systemInstruction": {"parts": [{"text": system}]},
             "contents": [{"role": "user", "parts": [{"text": prompt}]}],
-            "generationConfig": {"temperature": 0, "responseMimeType": "application/json"},
+            "generationConfig": {"responseMimeType": "application/json"},
         }
         url = f"{self.url}/{self.model}:generateContent"
         async with httpx.AsyncClient(timeout=120) as client:
-            response = await client.post(url, params={"key": self.api_key}, json=payload)
-            response.raise_for_status()
+            response = await client.post(
+                url,
+                headers={"x-goog-api-key": self.api_key},
+                json=payload,
+            )
+            if response.is_error:
+                detail = "Gemini did not provide an error message."
+                try:
+                    detail = str(response.json().get("error", {}).get("message", detail))
+                except ValueError:
+                    pass
+                raise RuntimeError(f"Gemini request failed ({response.status_code}): {detail[:500]}")
             data = response.json()
         return str(data["candidates"][0]["content"]["parts"][0].get("text", ""))
 

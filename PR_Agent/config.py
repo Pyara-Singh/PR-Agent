@@ -35,7 +35,7 @@ class Settings(BaseSettings):
     openai_model: str = "gpt-4o-mini"
     openai_url: str = "https://api.openai.com/v1/chat/completions"
     gemini_api_key: str = ""
-    gemini_model: str = "gemini-2.5-flash"
+    gemini_model: str = "gemini-3.5-flash"
     gemini_url: str = "https://generativelanguage.googleapis.com/v1beta/models"
     grok_api_key: str = ""
     grok_model: str = "grok-4.5"
